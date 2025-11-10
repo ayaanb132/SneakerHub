@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Login - SneakerHub Testing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+    
+    <div class="max-w-2xl w-full">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">🧪 Quick Test Login</h1>
+            <p class="text-gray-600 mb-6">Click any button below to instantly login with test credentials</p>
+
+            <div class="space-y-4">
+                <!-- User 1 -->
+                <button onclick="quickLogin('john.doe@example.com', 'password123')" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    <div class="text-left">
+                        <div class="font-bold">John Doe (3 orders)</div>
+                        <div class="text-sm opacity-90">john.doe@example.com</div>
+                    </div>
+                    <div class="text-2xl group-hover:scale-110 transition">→</div>
+                </button>
+
+                <!-- User 2 -->
+                <button onclick="quickLogin('jane.smith@example.com', 'password123')" 
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    <div class="text-left">
+                        <div class="font-bold">Jane Smith (1 order)</div>
+                        <div class="text-sm opacity-90">jane.smith@example.com</div>
+                    </div>
+                    <div class="text-2xl group-hover:scale-110 transition">→</div>
+                </button>
+
+                <!-- User 3 -->
+                <button onclick="quickLogin('test@sneakerhub.com', 'password123')" 
+                    class="w-full bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    <div class="text-left">
+                        <div class="font-bold">Test User (No orders)</div>
+                        <div class="text-sm opacity-90">test@sneakerhub.com</div>
+                    </div>
+                    <div class="text-2xl group-hover:scale-110 transition">→</div>
+                </button>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                <p class="text-sm text-gray-600 text-center">
+                    All passwords: <span class="font-mono font-bold">password123</span>
+                </p>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="status" class="mt-6 hidden"></div>
+
+            <!-- Manual Login Link -->
+            <div class="mt-6 text-center">
+                <a href="user-registration.HTML" class="text-indigo-600 hover:underline font-semibold">
+                    Or login manually →
+                </a>
+            </div>
+        </div>
+
+        <!-- Server Status Check -->
+        <div id="server-status" class="mt-4 text-center text-white"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        async function quickLogin(email, password) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="bg-blue-100 text-blue-800 p-3 rounded-lg animate-pulse">Logging in...</div>';
+            statusDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store credentials
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userEmail', data.user.email);
+
+                    statusDiv.innerHTML = '<div class="bg-green-100 text-green-800 p-3 rounded-lg">✓ Login successful! Redirecting...</div>';
+                    
+                    // Redirect to order tracking
+                    setTimeout(() => {
+                        window.location.href = 'order-tracking.HTML';
+                    }, 500);
+                } else {
+                    statusDiv.innerHTML = `<div class="bg-red-100 text-red-800 p-3 rounded-lg">✗ ${data.error}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="bg-red-100 text-red-800 p-3 rounded-lg">✗ Server error: ${error.message}<br><small>Make sure backend is running at ${API_BASE_URL}</small></div>`;
+            }
+        }
+
+        // Check server status on load
+        async function checkServer() {
+            const serverStatus = document.getElementById('server-status');
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    serverStatus.innerHTML = '✓ Backend server is running';
+                } else {
+                    serverStatus.innerHTML = '⚠️ Backend server issue';
+                }
+            } catch (error) {
+                serverStatus.innerHTML = '✗ Backend server not running! Run: npm start';
+                serverStatus.className = 'mt-4 text-center text-red-300 font-bold';
+            }
+        }
+
+        checkServer();
+    </script>
+
+</body>
+</html>

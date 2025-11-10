@@ -3,32 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Form</title>
+    <title>Login - SneakerHub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center min-h-screen">
 
-    <form id="registration-form" class="p-6 bg-white shadow rounded-xl space-y-4 w-full max-w-md">
-        <h3 class="text-2xl font-semibold text-gray-800">New User Registration</h3>
-        
-        <div>
-            <label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label>
-            <input type="email" id="reg-email" required
-                class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <div class="w-full max-w-md">
+        <!-- Toggle Buttons -->
+        <div class="bg-white rounded-t-xl p-2 flex space-x-2">
+            <button id="login-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold bg-indigo-600 text-white">
+                Login
+            </button>
+            <button id="register-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold text-gray-600 hover:bg-gray-100">
+                Register
+            </button>
         </div>
-        
-        <div>
-            <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" id="reg-password" required minlength="6"
-                class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-            <p class="text-xs text-gray-500 mt-1">Minimum 6 characters for basic client-side validation.</p>
-        </div>
-        
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
-            Register Account
-        </button>
-    </form>
+
+        <!-- Login Form -->
+        <form id="login-form" class="p-6 bg-white rounded-b-xl shadow-2xl space-y-4">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
+            <p class="text-sm text-gray-500 mb-4">Login to track your orders</p>
+            
+            <!-- Test Credentials Info -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm mb-4">
+                <p class="font-semibold text-blue-800 mb-1">🧪 Test Credentials:</p>
+                <p class="text-blue-700"><strong>Email:</strong> john.doe@example.com</p>
+                <p class="text-blue-700"><strong>Password:</strong> password123</p>
+            </div>
+
+            <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="text-sm"></p>
+            </div>
+            
+            <div>
+                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input type="email" id="login-email" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="login-password" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            
+            <button type="submit" id="login-submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                Login
+            </button>
+
+            <p class="text-center text-sm text-gray-600 mt-4">
+                Don't have an account? <button type="button" onclick="showRegister()" class="text-indigo-600 font-semibold hover:underline">Register here</button>
+            </p>
+        </form>
+
+        <!-- Registration Form (Hidden by default) -->
+        <form id="registration-form" class="p-6 bg-white rounded-b-xl shadow-2xl space-y-4 hidden">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Create Account</h3>
+            <p class="text-sm text-gray-500 mb-4">Join SneakerHub today!</p>
+
+            <div id="register-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="text-sm"></p>
+            </div>
+
+            <div id="register-success" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <p class="text-sm"></p>
+            </div>
+            
+            <div>
+                <label for="reg-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input type="email" id="reg-email" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            
+            <div>
+                <label for="reg-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="reg-password" required minlength="6"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <p class="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+            </div>
+            
+            <button type="submit" id="register-submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                Create Account
+            </button>
+
+            <p class="text-center text-sm text-gray-600 mt-4">
+                Already have an account? <button type="button" onclick="showLogin()" class="text-indigo-600 font-semibold hover:underline">Login here</button>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const registrationForm = document.getElementById('registration-form');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const registerSuccess = document.getElementById('register-success');
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        const registerSubmitBtn = document.getElementById('register-submit-btn');
+
+        // Show Login Form
+        function showLogin() {
+            loginForm.classList.remove('hidden');
+            registrationForm.classList.add('hidden');
+            loginTab.classList.add('bg-indigo-600', 'text-white');
+            loginTab.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            registerTab.classList.remove('bg-indigo-600', 'text-white');
+            registerTab.classList.add('text-gray-600', 'hover:bg-gray-100');
+        }
+
+        // Show Registration Form
+        function showRegister() {
+            registrationForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            registerTab.classList.add('bg-indigo-600', 'text-white');
+            registerTab.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            loginTab.classList.remove('bg-indigo-600', 'text-white');
+            loginTab.classList.add('text-gray-600', 'hover:bg-gray-100');
+        }
+
+        // Tab Click Handlers
+        loginTab.addEventListener('click', showLogin);
+        registerTab.addEventListener('click', showRegister);
+
+        // Login Form Submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Disable button and show loading
+            loginSubmitBtn.disabled = true;
+            loginSubmitBtn.textContent = 'Logging in...';
+            loginError.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token and user info
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userEmail', data.user.email);
+                    
+                    // Success! Redirect to order tracking
+                    alert('Login successful! Redirecting...');
+                    window.location.href = 'order-tracking.HTML';
+                } else {
+                    // Show error message
+                    loginError.querySelector('p').textContent = data.error || 'Login failed. Please check your credentials.';
+                    loginError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.querySelector('p').textContent = 'Network error. Make sure the backend server is running at ' + API_BASE_URL;
+                loginError.classList.remove('hidden');
+            } finally {
+                // Re-enable button
+                loginSubmitBtn.disabled = false;
+                loginSubmitBtn.textContent = 'Login';
+            }
+        });
+
+        // Registration Form Submit
+        registrationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            
+            // Disable button and show loading
+            registerSubmitBtn.disabled = true;
+            registerSubmitBtn.textContent = 'Creating Account...';
+            registerError.classList.add('hidden');
+            registerSuccess.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token and user info
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userEmail', data.user.email);
+                    
+                    // Show success message
+                    registerSuccess.querySelector('p').textContent = 'Account created successfully! Redirecting...';
+                    registerSuccess.classList.remove('hidden');
+                    
+                    // Redirect after 1 second
+                    setTimeout(() => {
+                        window.location.href = 'order-tracking.HTML';
+                    }, 1000);
+                } else {
+                    // Show error message
+                    registerError.querySelector('p').textContent = data.error || 'Registration failed. Please try again.';
+                    registerError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                registerError.querySelector('p').textContent = 'Network error. Make sure the backend server is running at ' + API_BASE_URL;
+                registerError.classList.remove('hidden');
+            } finally {
+                // Re-enable button
+                registerSubmitBtn.disabled = false;
+                registerSubmitBtn.textContent = 'Create Account';
+            }
+        });
+
+        // Check if user is already logged in
+        const authToken = localStorage.getItem('authToken');
+        if (authToken) {
+            // Already logged in, redirect to order tracking
+            window.location.href = 'order-tracking.HTML';
+        }
+    </script>
 
 </body>
 </html>

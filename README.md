@@ -1,311 +1,105 @@
-# 🏠 SneakerHub
+# 👟 SneakerHub
 
-A web app where users can browse and purchase sneakers with complete order tracking functionality.  
-Built collaboratively by our group using Git and GitHub for version control.
-
-## ✨ New Features
-
-### 🎯 Order Tracking (ORD-1) - IMPLEMENTED ✅
-- **Real-time order status tracking**: Processing → Shipped → Delivered
-- **User authentication**: Secure JWT-based login/registration
-- **Order history**: View all your past and current orders
-- **Shipment details**: Track your packages with tracking numbers
-- **Auto-refresh**: Updates every 30 seconds for real-time status
-- **Responsive UI**: Works on mobile and desktop
-
-**📚 Full Documentation**: See [ORDER_TRACKING_IMPLEMENTATION.md](ORDER_TRACKING_IMPLEMENTATION.md)
+A web application for browsing and purchasing sneakers with complete **order tracking** functionality. Built collaboratively using Git and GitHub.
 
 ---
 
-## 🚀 Quick Start
+## ✨ Features
 
-### For Front-End Only Development
-Just open any HTML file in your browser or use Live Server.
+* **Order Tracking:** Follow your order status in real-time (Processing → Shipped → Delivered).
+* **User Accounts:** Secure login/registration using JWT.
+* **Order History:** View all your past and current orders.
+* **Responsive UI:** Works well on both mobile and desktop.
 
-### For Full Stack (Order Tracking Feature)
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Seed database with sample data:**
-   ```bash
-   npm run seed
-   ```
-
-3. **Start backend server:**
-   ```bash
-   npm start
-   ```
-
-4. **Open front-end:**
-   - Open `src/order-tracking.HTML` in browser
-   - Or use Live Server extension in VS Code
-
-**Test Login:**
-- Email: `john.doe@example.com`
-- Password: `password123`
+**📚 Full Details**: See [ORDER_TRACKING_IMPLEMENTATION.md](ORDER_TRACKING_IMPLEMENTATION.md)
 
 ---
 
-## ⚙️ Setup Instructions (EVERY MEMBER MUST FOLLOW)
+## 🚀 Quick Start (Full Stack Development)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ayaanb132/SneakerHub.git
-   cd SneakerHub
-   ```
+This is the fastest way to get the **Order Tracking** feature running.
 
-2. **Create your personal branch (use your name or feature):**
-   ```bash
-   git checkout -b yourname-feature
-   ```
+1.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-3. **Before starting work, pull the latest updates from `main`:**
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout yourname-feature
-   git merge main
-   ```
+2.  **Seed the database with sample data:**
+    ```bash
+    npm run seed
+    ```
 
-4. **After finishing work, push your branch:**
-   ```bash
-   git add .
-   git commit -m "Describe your changes briefly"
-   git push origin yourname-feature
-   ```
+3.  **Start the backend server:**
+    ```bash
+    npm start
+    ```
 
-5. **Create a Pull Request (PR):**
-   - Go to GitHub → open your branch → click **“Compare & pull request.”**
-   - I’ll review and merge into `main` after approval.
+4.  **Open the front-end:**
+    * Open `src/order-tracking.HTML` in your browser or use the Live Server extension.
+
+> **Test Login Credentials:**
+> * **Email:** `john.doe@example.com`
+> * **Password:** `password123`
 
 ---
 
-## 🧩 Branch Workflow Summary
+## 💻 Tech Stack
 
-- Each member works on their **own branch**.
-- Never push directly to `main`.
-- Pull latest changes before starting work to avoid conflicts.
-- Only the project lead merges PRs into `main`.
-
----
-
-## 🧾 Folder Structure
-```
-SneakerHub/
-├── index.HTML                      # Homepage
-├── README.md                       # This file
-├── ORDER_TRACKING_IMPLEMENTATION.md # Complete ORD-1 documentation
-├── API_TESTING_EXAMPLES.md         # API testing guide
-├── package.json                    # Node.js dependencies
-├── server.js                       # Backend API server
-├── seed-database.js                # Sample data generator
-├── test-api.js                     # Automated API tests
-├── .env.example                    # Environment variables template
-├── .gitignore                      # Git ignore rules
-└── src/
-    ├── checkout-page.HTML          # Checkout page
-    ├── user-registration.HTML      # Login/Register page
-    ├── order-tracking.HTML         # ✨ NEW: Order tracking page
-    ├── order-tracking.js           # ✨ NEW: Order tracking logic
-    ├── search-products.HTML        # Product search
-    └── UI-1.js                     # UI utilities
-```
-
-## 📡 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login existing user
-
-### Orders (ORD-1)
-- `GET /api/orders` - Get all user orders
-- `GET /api/orders/:orderId` - Get specific order
-- `POST /api/orders` - Create new order
-- `PATCH /api/orders/:orderId/status` - Update order status
-
-**Full API documentation**: See [API_TESTING_EXAMPLES.md](API_TESTING_EXAMPLES.md)
+| Category | Technologies Used |
+| :--- | :--- |
+| **Frontend** | HTML5, **Tailwind CSS**, Vanilla JavaScript, Fetch API |
+| **Backend** | **Node.js**, **Express.js** |
+| **Database** | **SQLite** (`sneakerhub.db`), JWT for Authentication |
 
 ---
 
-## 🧪 Testing
+## ⚙️ Development Workflow
 
-### Test the API
-```bash
-node test-api.js
-```
+*All team members must follow this process for contributing.*
 
-### Test with cURL
-```bash
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"john.doe@example.com","password":"password123"}'
+1.  **Clone the project:**
+    ```bash
+    git clone [https://github.com/ayaanb132/SneakerHub.git](https://github.com/ayaanb132/SneakerHub.git)
+    cd SneakerHub
+    ```
 
-# Get orders (replace TOKEN)
-curl http://localhost:3000/api/orders \
-  -H "Authorization: Bearer TOKEN"
-```
+2.  **Create and switch to your branch:**
+    ```bash
+    git checkout -b yourname-feature
+    ```
 
-More examples in [API_TESTING_EXAMPLES.md](API_TESTING_EXAMPLES.md)
+3.  **Sync with `main` before starting work:**
+    ```bash
+    git checkout main
+    git pull origin main
+    git checkout yourname-feature
+    git merge main
+    ```
 
----
+4.  **After your work is done:**
+    ```bash
+    git add .
+    git commit -m "Briefly describe your changes"
+    git push origin yourname-feature
+    ```
 
-## 🗄️ Database
-
-**Database Type**: SQLite (file: `sneakerhub.db`)
-
-**Tables:**
-- `users` - User accounts
-- `orders` - Order records
-- `order_items` - Order line items
-
-**Seed Data:**
-```bash
-npm run seed
-```
-Creates 3 test users with sample orders.
+5.  **Create a Pull Request (PR) on GitHub** for review and merging.
 
 ---
 
-## 🔐 Authentication
+## 📚 Resources & Next Steps
 
-**Method**: JWT (JSON Web Tokens)  
-**Token Expiry**: 7 days  
-**Storage**: localStorage (frontend)
-
-**Sample Login Flow:**
-1. User logs in via `/api/auth/login`
-2. Server returns JWT token
-3. Frontend stores token in localStorage
-4. Token included in Authorization header for protected routes
-
----
-
-## ✅ Example Commands
-
-```bash
-git checkout -b ayaan-ui
-# (do some coding)
-git add .
-git commit -m "Added homepage UI"
-git push origin ayaan-ui
-```
-
-Then open a Pull Request on GitHub.
-
----
-
-## 🧠 Tips
-
-- Always **sync with `main`** before working:
-  ```bash
-  git checkout main
-  git pull origin main
-  git checkout yourname-feature
-  git merge main
-  ```
-- Write **clear commit messages.**
-- Check **GitHub PR comments** regularly.
-- **Don't commit** `node_modules/` or `.env` files (already in .gitignore)
-- **Backend must be running** for order tracking to work
-
----
-
-## 📚 Additional Resources
-
-- **Order Tracking Implementation**: [ORDER_TRACKING_IMPLEMENTATION.md](ORDER_TRACKING_IMPLEMENTATION.md)
-- **API Testing Guide**: [API_TESTING_EXAMPLES.md](API_TESTING_EXAMPLES.md)
-- **Tailwind CSS**: https://tailwindcss.com/docs
-- **Express.js**: https://expressjs.com/
-- **JWT Authentication**: https://jwt.io/
-
----
-
-## 🛠️ Tech Stack
-
-**Frontend:**
-- HTML5
-- Tailwind CSS (via CDN)
-- Vanilla JavaScript
-- Fetch API for HTTP requests
-
-**Backend:**
-- Node.js
-- Express.js
-- SQLite (better-sqlite3)
-- JWT for authentication
-- bcrypt for password hashing
-
----
-
-## 🔄 Development Workflow
-
-1. **Pull latest changes**
-   ```bash
-   git checkout main && git pull origin main
-   ```
-
-2. **Create/switch to your branch**
-   ```bash
-   git checkout -b yourname-feature
-   ```
-
-3. **Make your changes**
-   - Edit files as needed
-   - Test locally
-
-4. **Commit and push**
-   ```bash
-   git add .
-   git commit -m "Add feature X"
-   git push origin yourname-feature
-   ```
-
-5. **Create Pull Request**
-   - Go to GitHub
-   - Click "Compare & pull request"
-   - Wait for review
+* **API Testing Guide**: [API_TESTING_EXAMPLES.md](API_TESTING_EXAMPLES.md)
+* **Full Order Tracking Documentation**: [ORDER_TRACKING_IMPLEMENTATION.md](ORDER_TRACKING_IMPLEMENTATION.md)
 
 ---
 
 ## 🐛 Troubleshooting
 
-### "Cannot connect to server"
-- Make sure server is running: `npm start`
-- Check if port 3000 is available
-- Verify URL: `http://localhost:3000`
-
-### "No orders showing"
-- Run database seed: `npm run seed`
-- Check if logged in with correct user
-- Open browser console for errors
-
-### "Token expired"
-- Tokens expire after 7 days
-- Login again to get fresh token
-
-### "Module not found"
-- Run `npm install` to install dependencies
-- Check if you're in the correct directory
+* **Server issues?** Make sure you ran `npm start`.
+* **No orders?** Run `npm run seed` to load test data.
+* **Dependencies missing?** Run `npm install`.
 
 ---
 
-## 📝 Future Enhancements
-
-- [ ] Payment processing integration
-- [ ] Email notifications for status changes
-- [ ] Admin dashboard for order management
-- [ ] Product inventory management
-- [ ] Shopping cart persistence
-- [ ] Order cancellation feature
-- [ ] Real shipping carrier integration
-- [ ] Product reviews and ratings
-- [ ] Wishlist functionality
-- [ ] Advanced search and filters
-
----
-
-**Repository:** [SneakerHub](https://github.com/ayaanb132/SneakerHub)
+**Repository:** [SneakerHub](https://github.com/ayaanb132/SnekerHub)

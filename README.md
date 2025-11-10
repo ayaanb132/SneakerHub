@@ -1,4 +1,3 @@
-````markdown
 # 🏠 SneakerHub
 
 A web app where users can browse and purchase sneakers with complete order tracking functionality.  

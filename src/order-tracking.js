@@ -92,6 +92,7 @@ async function loadOrders() {
 
 /**
  * Display orders in the UI
+ * Filters out cancelled orders (they're already filtered on backend, but double-check here)
  * @param {Array} orders - Array of order objects
  */
 function displayOrders(orders) {
@@ -99,10 +100,18 @@ function displayOrders(orders) {
     ordersContainer.classList.remove('hidden');
     noOrdersMessage.classList.add('hidden');
     
-    // Sort orders by date (newest first)
-    orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    // Filter out cancelled orders (backend already does this, but extra safety)
+    const activeOrders = orders.filter(order => order.status !== 'Cancelled');
     
-    orders.forEach(order => {
+    if (activeOrders.length === 0) {
+        showNoOrders();
+        return;
+    }
+    
+    // Sort orders by date (newest first)
+    activeOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    
+    activeOrders.forEach(order => {
         const orderCard = createOrderCard(order);
         ordersContainer.appendChild(orderCard);
     });
@@ -116,9 +125,21 @@ function displayOrders(orders) {
 function createOrderCard(order) {
     const card = document.createElement('div');
     card.className = 'bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition';
+    card.setAttribute('data-order-id', order.orderId); // Store order ID for easy removal
     
     // Determine status styling and icon
     const statusInfo = getStatusInfo(order.status);
+    
+    // Show cancel button only for Processing orders (ORD-2)
+    const cancelButton = order.status === 'Processing' ? `
+        <button 
+            id="cancel-btn-${order.orderId}" 
+            class="mt-3 w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-semibold"
+            onclick="handleCancelOrder('${order.orderId}')"
+        >
+            🗑️ Cancel Order
+        </button>
+    ` : '';
     
     card.innerHTML = `
         <div class="flex justify-between items-start mb-4">
@@ -187,6 +208,9 @@ function createOrderCard(order) {
                 </p>
             </div>
         ` : ''}
+        
+        <!-- Cancel Button (ORD-2: Only show for Processing orders) -->
+        ${cancelButton}
     `;
     
     return card;
@@ -340,6 +364,124 @@ function handleAuthError() {
 }
 
 /**
+ * Handle order cancellation (ORD-2)
+ * @param {String} orderId - Order ID to cancel
+ */
+async function handleCancelOrder(orderId) {
+    // Show confirmation dialog
+    const confirmed = confirm(
+        `Are you sure you want to cancel order #${orderId}?\n\n` +
+        `This action cannot be undone. The order will be cancelled and removed from your active orders.`
+    );
+    
+    if (!confirmed) {
+        return; // User cancelled the confirmation
+    }
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        
+        // Disable the cancel button to prevent double-clicks
+        const cancelBtn = document.getElementById(`cancel-btn-${orderId}`);
+        if (cancelBtn) {
+            cancelBtn.disabled = true;
+            cancelBtn.textContent = 'Cancelling...';
+            cancelBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        
+        // Make API request to cancel the order
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            
+            if (response.status === 401) {
+                handleAuthError();
+                return;
+            }
+            
+            // Re-enable button on error
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.textContent = '🗑️ Cancel Order';
+                cancelBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            throw new Error(errorData.error || `Failed to cancel order: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Show success message
+        showSuccessMessage(`Order #${orderId} has been cancelled successfully.`);
+        
+        // Remove the order card from the UI immediately (no page refresh needed)
+        const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+        if (orderCard) {
+            // Add fade-out animation
+            orderCard.style.transition = 'opacity 0.3s ease-out';
+            orderCard.style.opacity = '0';
+            
+            setTimeout(() => {
+                orderCard.remove();
+                
+                // Check if there are any remaining orders
+                const remainingOrders = ordersContainer.querySelectorAll('[data-order-id]');
+                if (remainingOrders.length === 0) {
+                    showNoOrders();
+                }
+            }, 300);
+        } else {
+            // If card not found, reload orders to ensure UI is in sync
+            await loadOrders();
+        }
+        
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        showError(error.message || 'Failed to cancel order. Please try again later.');
+    }
+}
+
+/**
+ * Show success message after order cancellation
+ * @param {String} message - Success message to display
+ */
+function showSuccessMessage(message) {
+    // Create or get success message element
+    let successMsg = document.getElementById('success-message');
+    
+    if (!successMsg) {
+        // Create success message element if it doesn't exist
+        successMsg = document.createElement('div');
+        successMsg.id = 'success-message';
+        successMsg.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6';
+        
+        // Insert it before the orders container
+        const mainContent = document.querySelector('.max-w-7xl');
+        if (mainContent && ordersContainer.parentElement) {
+            ordersContainer.parentElement.insertBefore(successMsg, ordersContainer);
+        }
+    }
+    
+    successMsg.innerHTML = `
+        <p class="font-bold">Success</p>
+        <p>${message}</p>
+    `;
+    successMsg.classList.remove('hidden');
+    
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+        successMsg.classList.add('hidden');
+    }, 5000);
+}
+
+/**
  * Handle logout
  */
 logoutBtn.addEventListener('click', () => {
@@ -355,6 +497,10 @@ logoutBtn.addEventListener('click', () => {
         window.location.href = '../index.HTML';
     }
 });
+
+// Make handleCancelOrder available globally so it can be called from inline onclick
+// (Alternative: Use event delegation, but inline onclick is simpler for this use case)
+window.handleCancelOrder = handleCancelOrder;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', initializeOrderTracking);

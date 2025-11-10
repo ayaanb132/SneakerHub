@@ -45,12 +45,14 @@ function initializeDatabase() {
     `);
     
     // Orders table
+    // Note: SQLite doesn't support ALTER TABLE to modify CHECK constraints
+    // If you need to update existing databases, you may need to recreate the table
     db.exec(`
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             orderId TEXT UNIQUE NOT NULL,
             userId INTEGER NOT NULL,
-            status TEXT NOT NULL CHECK(status IN ('Processing', 'Shipped', 'Delivered')),
+            status TEXT NOT NULL CHECK(status IN ('Processing', 'Shipped', 'Delivered', 'Cancelled')),
             totalAmount REAL NOT NULL,
             orderDate DATETIME DEFAULT CURRENT_TIMESTAMP,
             statusUpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -216,10 +218,10 @@ app.get('/api/orders', authenticateToken, (req, res) => {
     try {
         const userId = req.user.userId;
         
-        // Fetch orders for the user
+        // Fetch orders for the user (exclude cancelled orders from active list)
         const orders = db.prepare(`
             SELECT * FROM orders 
-            WHERE userId = ? 
+            WHERE userId = ? AND status != 'Cancelled'
             ORDER BY orderDate DESC
         `).all(userId);
         
@@ -395,7 +397,7 @@ app.patch('/api/orders/:orderId/status', authenticateToken, (req, res) => {
         const { status } = req.body;
         
         // Validate status
-        const validStatuses = ['Processing', 'Shipped', 'Delivered'];
+        const validStatuses = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Invalid status' });
         }
@@ -432,6 +434,58 @@ app.patch('/api/orders/:orderId/status', authenticateToken, (req, res) => {
     }
 });
 
+/**
+ * DELETE /api/orders/:orderId
+ * Cancel an order (ORD-2)
+ * Only allows cancellation of orders in "Processing" status
+ * Cancelled orders remain in database but are excluded from active orders list
+ */
+app.delete('/api/orders/:orderId', authenticateToken, (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { orderId } = req.params;
+        
+        // First, verify the order exists and belongs to the user
+        const order = db.prepare(`
+            SELECT * FROM orders 
+            WHERE orderId = ? AND userId = ?
+        `).get(orderId, userId);
+        
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        // Only allow cancellation of orders in "Processing" status
+        if (order.status !== 'Processing') {
+            return res.status(400).json({ 
+                error: `Cannot cancel order. Only orders in "Processing" status can be cancelled. Current status: ${order.status}` 
+            });
+        }
+        
+        // Update order status to "Cancelled"
+        const result = db.prepare(`
+            UPDATE orders 
+            SET status = 'Cancelled',
+                statusUpdatedAt = CURRENT_TIMESTAMP
+            WHERE orderId = ? AND userId = ?
+        `).run(orderId, userId);
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Order not found or could not be cancelled' });
+        }
+        
+        res.json({
+            message: 'Order cancelled successfully',
+            orderId,
+            status: 'Cancelled'
+        });
+        
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).json({ error: 'Failed to cancel order' });
+    }
+});
+
 // ============================================
 // HEALTH CHECK
 // ============================================
@@ -459,6 +513,7 @@ API Endpoints:
   GET    /api/orders/:orderId
   POST   /api/orders
   PATCH  /api/orders/:orderId/status
+  DELETE /api/orders/:orderId (ORD-2: Cancel order)
   GET    /api/health
 
 Ready to accept requests! 🎉

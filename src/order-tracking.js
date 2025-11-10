@@ -11,13 +11,22 @@ const loadingIndicator = document.getElementById('loading-indicator');
 const errorMessage = document.getElementById('error-message');
 const errorText = document.getElementById('error-text');
 const ordersContainer = document.getElementById('orders-container');
+const orderHistoryContainer = document.getElementById('order-history-container');
 const noOrdersMessage = document.getElementById('no-orders-message');
 const userEmailSpan = document.getElementById('user-email');
 const logoutBtn = document.getElementById('logout-btn');
+const tabActiveOrders = document.getElementById('tab-active-orders');
+const tabOrderHistory = document.getElementById('tab-order-history');
+const receiptModal = document.getElementById('receipt-modal');
+const receiptContent = document.getElementById('receipt-content');
+const closeReceiptModal = document.getElementById('close-receipt-modal');
 
 // Auto-refresh interval (in milliseconds) - refresh every 30 seconds
 const REFRESH_INTERVAL = 30000;
 let refreshTimer = null;
+
+// Current active tab ('active' or 'history')
+let currentTab = 'active';
 
 /**
  * Initialize the order tracking page
@@ -38,11 +47,17 @@ async function initializeOrderTracking() {
     // Display user email
     userEmailSpan.textContent = userEmail;
     
-    // Load orders
+    // Set up tab switching
+    setupTabs();
+    
+    // Load active orders by default
     await loadOrders();
     
-    // Set up auto-refresh for real-time updates
+    // Set up auto-refresh for real-time updates (only for active orders tab)
     setupAutoRefresh();
+    
+    // Set up receipt modal close handler
+    setupReceiptModal();
 }
 
 /**
@@ -148,7 +163,7 @@ function createOrderCard(order) {
                 <p class="text-sm text-gray-500 mt-1">Placed on ${formatDate(order.orderDate)}</p>
             </div>
             <div class="text-right">
-                <span class="inline-block px-4 py-2 rounded-full text-sm font-semibold ${statusInfo.bgColor} ${statusInfo.textColor}">
+                <span class="inline-block px-4 py-2 rounded-full text-sm font-semibold" ${statusInfo.bgColor} ${statusInfo.textColor}>
                     ${statusInfo.icon} ${order.status}
                 </span>
             </div>
@@ -171,7 +186,7 @@ function createOrderCard(order) {
         <div class="border-t border-gray-200 pt-3 mb-4">
             <div class="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span class="text-indigo-600">$${order.totalAmount.toFixed(2)}</span>
+                <span style="color: #00C853;">$${order.totalAmount.toFixed(2)}</span>
             </div>
         </div>
         
@@ -201,8 +216,8 @@ function createOrderCard(order) {
         
         <!-- Tracking Number (if shipped) -->
         ${order.trackingNumber ? `
-            <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                <p class="text-sm text-indigo-800">
+            <div class="mt-4 rounded-lg p-4" style="background-color: rgba(0,200,83,0.1); border: 1px solid #00C853;">
+                <p class="text-sm" style="color: #00C853;">
                     <span class="font-semibold">📮 Tracking Number:</span> 
                     <span class="font-mono">${order.trackingNumber}</span>
                 </p>
@@ -258,25 +273,30 @@ function createStatusTimeline(order) {
 function getStatusInfo(status) {
     const statusMap = {
         'Processing': {
-            bgColor: 'bg-yellow-100',
-            textColor: 'text-yellow-800',
+            bgColor: 'style="background-color: #FFF3CD;"',
+            textColor: 'style="color: #856404;"',
             icon: '⏳'
         },
         'Shipped': {
-            bgColor: 'bg-blue-100',
-            textColor: 'text-blue-800',
+            bgColor: 'style="background-color: rgba(0,200,83,0.2);"',
+            textColor: 'style="color: #00C853;"',
             icon: '🚚'
         },
         'Delivered': {
-            bgColor: 'bg-green-100',
-            textColor: 'text-green-800',
+            bgColor: 'style="background-color: rgba(0,200,83,0.2);"',
+            textColor: 'style="color: #00C853;"',
             icon: '✓'
+        },
+        'Cancelled': {
+            bgColor: 'style="background-color: rgba(255,61,0,0.2);"',
+            textColor: 'style="color: #FF3D00;"',
+            icon: '✕'
         }
     };
     
     return statusMap[status] || {
-        bgColor: 'bg-gray-100',
-        textColor: 'text-gray-800',
+        bgColor: 'style="background-color: #F5F5F5;"',
+        textColor: 'style="color: #222222;"',
         icon: '•'
     };
 }
@@ -501,6 +521,378 @@ logoutBtn.addEventListener('click', () => {
 // Make handleCancelOrder available globally so it can be called from inline onclick
 // (Alternative: Use event delegation, but inline onclick is simpler for this use case)
 window.handleCancelOrder = handleCancelOrder;
+
+// ============================================
+// ORDER HISTORY FUNCTIONS (ORD-3)
+// ============================================
+
+/**
+ * Set up tab switching between Active Orders and Order History
+ */
+function setupTabs() {
+    tabActiveOrders.addEventListener('click', () => {
+        switchTab('active');
+    });
+    
+    tabOrderHistory.addEventListener('click', () => {
+        switchTab('history');
+    });
+}
+
+/**
+ * Switch between Active Orders and Order History tabs
+ * @param {String} tab - 'active' or 'history'
+ */
+async function switchTab(tab) {
+    currentTab = tab;
+    
+    // Update tab button styles
+    if (tab === 'active') {
+        tabActiveOrders.style.color = '#00C853';
+        tabActiveOrders.style.borderBottomColor = '#00C853';
+        tabActiveOrders.style.borderBottomWidth = '2px';
+        tabOrderHistory.style.color = '#666666';
+        tabOrderHistory.style.borderBottomWidth = '0';
+        
+        // Show active orders container, hide history
+        ordersContainer.classList.remove('hidden');
+        orderHistoryContainer.classList.add('hidden');
+        
+        // Load active orders
+        await loadOrders();
+        
+        // Resume auto-refresh for active orders
+        setupAutoRefresh();
+    } else {
+        tabOrderHistory.style.color = '#00C853';
+        tabOrderHistory.style.borderBottomColor = '#00C853';
+        tabOrderHistory.style.borderBottomWidth = '2px';
+        tabActiveOrders.style.color = '#666666';
+        tabActiveOrders.style.borderBottomWidth = '0';
+        
+        // Show history container, hide active orders
+        orderHistoryContainer.classList.remove('hidden');
+        ordersContainer.classList.add('hidden');
+        
+        // Load order history
+        await loadOrderHistory();
+        
+        // Stop auto-refresh when viewing history
+        if (refreshTimer) {
+            clearInterval(refreshTimer);
+            refreshTimer = null;
+        }
+    }
+}
+
+/**
+ * Fetch order history from the backend API (includes all orders including cancelled)
+ */
+async function loadOrderHistory() {
+    try {
+        showLoading();
+        hideError();
+        
+        const authToken = localStorage.getItem('authToken');
+        
+        // Make API request to fetch order history
+        const response = await fetch(`${API_BASE_URL}/orders/history`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                handleAuthError();
+                return;
+            }
+            throw new Error(`Failed to fetch order history: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        hideLoading();
+        
+        if (data.orders && data.orders.length > 0) {
+            displayOrderHistory(data.orders);
+        } else {
+            showNoOrdersHistory();
+        }
+        
+    } catch (error) {
+        console.error('Error loading order history:', error);
+        hideLoading();
+        showError('Failed to load order history. Please try again later.');
+    }
+}
+
+/**
+ * Display order history in the UI
+ * Shows all orders including cancelled ones in a compact format
+ * @param {Array} orders - Array of order objects
+ */
+function displayOrderHistory(orders) {
+    orderHistoryContainer.innerHTML = '';
+    orderHistoryContainer.classList.remove('hidden');
+    noOrdersMessage.classList.add('hidden');
+    
+    // Sort orders by date (newest first)
+    orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    
+    // Group orders by date (optional enhancement - can be removed if not needed)
+    const ordersList = document.createElement('div');
+    ordersList.className = 'space-y-4';
+    
+    orders.forEach(order => {
+        const historyCard = createOrderHistoryCard(order);
+        ordersList.appendChild(historyCard);
+    });
+    
+    orderHistoryContainer.appendChild(ordersList);
+}
+
+/**
+ * Create a compact order history card element (ORD-3)
+ * Displays: shoe name, price, size, date, and status
+ * @param {Object} order - Order object
+ * @returns {HTMLElement} - Order history card element
+ */
+function createOrderHistoryCard(order) {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition';
+    
+    // Determine status styling
+    const statusInfo = getStatusInfo(order.status);
+    
+    // Get all items in the order
+    const itemsList = order.items.map(item => 
+        `${item.name} (Size: ${item.size}) - $${item.price.toFixed(2)} x ${item.quantity}`
+    ).join(', ');
+    
+    // Calculate total items count
+    const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+    
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                    <h3 class="text-lg font-bold text-gray-800">Order #${order.orderId}</h3>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold" ${statusInfo.bgColor} ${statusInfo.textColor}>
+                        ${statusInfo.icon} ${order.status}
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">
+                    <span class="font-semibold">Date:</span> ${formatDate(order.orderDate)}
+                </p>
+                <div class="text-sm text-gray-700 mb-2">
+                    <span class="font-semibold">Items (${totalItems}):</span> ${itemsList}
+                </div>
+            </div>
+            <div class="text-right ml-4">
+                <p class="text-lg font-bold" style="color: #00C853;">$${order.totalAmount.toFixed(2)}</p>
+                <button 
+                    onclick="showReceipt('${order.orderId}')"
+                    class="mt-2 text-sm px-3 py-1 rounded transition text-white"
+                    style="background-color: #00C853;"
+                    onmouseover="this.style.backgroundColor='#00B047'"
+                    onmouseout="this.style.backgroundColor='#00C853'"
+                >
+                    View Receipt
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+/**
+ * Show detailed receipt for an order (ORD-3)
+ * @param {String} orderId - Order ID to display receipt for
+ */
+async function showReceipt(orderId) {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        
+        // Fetch order details
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                handleAuthError();
+                return;
+            }
+            throw new Error('Failed to fetch order details');
+        }
+        
+        const data = await response.json();
+        const order = data.order;
+        
+        // Generate receipt HTML
+        const receiptHTML = generateReceiptHTML(order);
+        receiptContent.innerHTML = receiptHTML;
+        
+        // Show modal
+        receiptModal.classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error loading receipt:', error);
+        showError('Failed to load receipt. Please try again later.');
+    }
+}
+
+/**
+ * Generate HTML for order receipt
+ * @param {Object} order - Order object with full details
+ * @returns {String} - HTML string for receipt
+ */
+function generateReceiptHTML(order) {
+    const statusInfo = getStatusInfo(order.status);
+    
+    // Calculate subtotal and items
+    const itemsHTML = order.items.map(item => {
+        const itemTotal = item.price * item.quantity;
+        return `
+            <tr class="border-b">
+                <td class="py-2">${item.name}</td>
+                <td class="text-center">${item.size}</td>
+                <td class="text-center">${item.quantity}</td>
+                <td class="text-right">$${item.price.toFixed(2)}</td>
+                <td class="text-right font-semibold">$${itemTotal.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+    
+    return `
+        <div class="space-y-4">
+            <!-- Order Header -->
+            <div class="border-b pb-4">
+                <h4 class="text-xl font-bold text-gray-800 mb-2">Order #${order.orderId}</h4>
+                <div class="flex items-center gap-2">
+                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold" ${statusInfo.bgColor} ${statusInfo.textColor}>
+                        ${statusInfo.icon} ${order.status}
+                    </span>
+                    <span class="text-sm" style="color: #666666;">Ordered on ${formatDate(order.orderDate)}</span>
+                </div>
+            </div>
+            
+            <!-- Order Items Table -->
+            <div>
+                <h5 class="font-semibold text-gray-700 mb-2">Items Ordered:</h5>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b-2 border-gray-300">
+                            <th class="text-left py-2">Product</th>
+                            <th class="text-center py-2">Size</th>
+                            <th class="text-center py-2">Qty</th>
+                            <th class="text-right py-2">Price</th>
+                            <th class="text-right py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHTML}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Order Total -->
+            <div class="border-t pt-4">
+                <div class="flex justify-end">
+                    <div class="w-64">
+                        <div class="flex justify-between text-lg font-bold mb-2">
+                            <span>Total:</span>
+                            <span style="color: #00C853;">$${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Address -->
+            <div class="border-t pt-4">
+                <h5 class="font-semibold text-gray-700 mb-2">Shipping Address:</h5>
+                <p class="text-sm text-gray-600">${order.shippingAddress.name}</p>
+                <p class="text-sm text-gray-600">${order.shippingAddress.street}</p>
+                <p class="text-sm text-gray-600">${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}</p>
+            </div>
+            
+            <!-- Additional Info -->
+            ${order.trackingNumber ? `
+                <div class="border-t pt-4">
+                    <p class="text-sm text-gray-600">
+                        <span class="font-semibold">Tracking Number:</span> 
+                        <span class="font-mono">${order.trackingNumber}</span>
+                    </p>
+                </div>
+            ` : ''}
+            ${order.estimatedDelivery ? `
+                <div class="border-t pt-4">
+                    <p class="text-sm text-gray-600">
+                        <span class="font-semibold">Estimated Delivery:</span> 
+                        ${formatDate(order.estimatedDelivery)}
+                    </p>
+                </div>
+            ` : ''}
+            ${order.statusUpdatedAt ? `
+                <div class="border-t pt-4">
+                    <p class="text-sm text-gray-600">
+                        <span class="font-semibold">Status Updated:</span> 
+                        ${formatDate(order.statusUpdatedAt)}
+                    </p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+/**
+ * Set up receipt modal close handlers
+ */
+function setupReceiptModal() {
+    // Close button
+    closeReceiptModal.addEventListener('click', () => {
+        receiptModal.classList.add('hidden');
+    });
+    
+    // Close on outside click
+    receiptModal.addEventListener('click', (e) => {
+        if (e.target === receiptModal) {
+            receiptModal.classList.add('hidden');
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !receiptModal.classList.contains('hidden')) {
+            receiptModal.classList.add('hidden');
+        }
+    });
+}
+
+/**
+ * Show no orders message for history tab
+ */
+function showNoOrdersHistory() {
+    orderHistoryContainer.innerHTML = `
+        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded text-center">
+            <p class="font-semibold">No order history found</p>
+            <p class="text-sm mt-2">You haven't placed any orders yet. Start shopping!</p>
+            <a href="../index.HTML" class="inline-block mt-4 text-white px-6 py-2 rounded transition" style="background-color: #FF3D00;" onmouseover="this.style.backgroundColor='#e63600'" onmouseout="this.style.backgroundColor='#FF3D00'">Browse Products</a>
+        </div>
+    `;
+    orderHistoryContainer.classList.remove('hidden');
+}
+
+// Make showReceipt available globally so it can be called from inline onclick
+window.showReceipt = showReceipt;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', initializeOrderTracking);

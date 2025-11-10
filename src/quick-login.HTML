@@ -5,18 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Login - SneakerHub Testing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-primary { background-color: #111111; }
+        .bg-cta { background-color: #FF3D00; }
+        .hover-bg-cta:hover { background-color: #e63600; }
+        .text-primary { color: #222222; }
+        .text-subtext { color: #666666; }
+        .text-accent { color: #00C853; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #111111 0%, #222222 100%);">
     
     <div class="max-w-2xl w-full">
         <div class="bg-white rounded-2xl shadow-2xl p-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">🧪 Quick Test Login</h1>
-            <p class="text-gray-600 mb-6">Click any button below to instantly login with test credentials</p>
+            <h1 class="text-3xl font-bold mb-2" style="color: #222222;">🧪 Quick Test Login</h1>
+            <p class="mb-6" style="color: #666666;">Click any button below to instantly login with test credentials</p>
 
             <div class="space-y-4">
                 <!-- User 1 -->
                 <button onclick="quickLogin('john.doe@example.com', 'password123')" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    class="w-full bg-cta hover-bg-cta text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
                     <div class="text-left">
                         <div class="font-bold">John Doe (3 orders)</div>
                         <div class="text-sm opacity-90">john.doe@example.com</div>
@@ -26,7 +34,7 @@
 
                 <!-- User 2 -->
                 <button onclick="quickLogin('jane.smith@example.com', 'password123')" 
-                    class="w-full bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    class="w-full bg-cta hover-bg-cta text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
                     <div class="text-left">
                         <div class="font-bold">Jane Smith (1 order)</div>
                         <div class="text-sm opacity-90">jane.smith@example.com</div>
@@ -36,7 +44,7 @@
 
                 <!-- User 3 -->
                 <button onclick="quickLogin('test@sneakerhub.com', 'password123')" 
-                    class="w-full bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
+                    class="w-full bg-cta hover-bg-cta text-white p-4 rounded-xl font-semibold transition flex items-center justify-between group">
                     <div class="text-left">
                         <div class="font-bold">Test User (No orders)</div>
                         <div class="text-sm opacity-90">test@sneakerhub.com</div>
@@ -45,8 +53,8 @@
                 </button>
             </div>
 
-            <div class="mt-6 p-4 bg-gray-100 rounded-lg">
-                <p class="text-sm text-gray-600 text-center">
+            <div class="mt-6 p-4 rounded-lg" style="background-color: #F5F5F5;">
+                <p class="text-sm text-center" style="color: #666666;">
                     All passwords: <span class="font-mono font-bold">password123</span>
                 </p>
             </div>
@@ -56,7 +64,7 @@
 
             <!-- Manual Login Link -->
             <div class="mt-6 text-center">
-                <a href="user-registration.HTML" class="text-indigo-600 hover:underline font-semibold">
+                <a href="user-registration.HTML" class="text-accent hover:underline font-semibold">
                     Or login manually →
                 </a>
             </div>

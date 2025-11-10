@@ -261,6 +261,57 @@ app.get('/api/orders', authenticateToken, (req, res) => {
 });
 
 /**
+ * GET /api/orders/history
+ * Get all orders for authenticated user including cancelled orders (ORD-3)
+ * This endpoint returns the complete order history
+ */
+app.get('/api/orders/history', authenticateToken, (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        // Fetch ALL orders for the user (including cancelled orders)
+        const orders = db.prepare(`
+            SELECT * FROM orders 
+            WHERE userId = ?
+            ORDER BY orderDate DESC
+        `).all(userId);
+        
+        // Fetch items for each order
+        const ordersWithItems = orders.map(order => {
+            const items = db.prepare(`
+                SELECT productId, name, size, price, quantity 
+                FROM order_items 
+                WHERE orderId = ?
+            `).all(order.orderId);
+            
+            return {
+                orderId: order.orderId,
+                status: order.status,
+                totalAmount: order.totalAmount,
+                orderDate: order.orderDate,
+                statusUpdatedAt: order.statusUpdatedAt,
+                estimatedDelivery: order.estimatedDelivery,
+                trackingNumber: order.trackingNumber,
+                shippingAddress: {
+                    name: order.shippingName,
+                    street: order.shippingStreet,
+                    city: order.shippingCity,
+                    state: order.shippingState,
+                    zipCode: order.shippingZipCode
+                },
+                items
+            };
+        });
+        
+        res.json({ orders: ordersWithItems });
+        
+    } catch (error) {
+        console.error('Error fetching order history:', error);
+        res.status(500).json({ error: 'Failed to fetch order history' });
+    }
+});
+
+/**
  * GET /api/orders/:orderId
  * Get specific order details
  */
@@ -510,6 +561,7 @@ API Endpoints:
   POST   /api/auth/register
   POST   /api/auth/login
   GET    /api/orders
+  GET    /api/orders/history (ORD-3: Order history)
   GET    /api/orders/:orderId
   POST   /api/orders
   PATCH  /api/orders/:orderId/status

@@ -6,30 +6,42 @@
     <title>Login - SneakerHub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-primary { background-color: #111111; }
+        .bg-secondary { background-color: #F5F5F5; }
+        .bg-accent { background-color: #00C853; }
+        .bg-cta { background-color: #FF3D00; }
+        .hover-bg-cta:hover { background-color: #e63600; }
+        .text-primary { color: #222222; }
+        .text-subtext { color: #666666; }
+        .text-accent { color: #00C853; }
+        .hover-text-accent:hover { color: #00C853; }
+        .focus-ring-accent:focus { outline: 2px solid #00C853; outline-offset: 2px; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen" style="background: linear-gradient(135deg, #111111 0%, #222222 100%);">
 
     <div class="w-full max-w-md">
         <!-- Toggle Buttons -->
         <div class="bg-white rounded-t-xl p-2 flex space-x-2">
-            <button id="login-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold bg-indigo-600 text-white">
+            <button id="login-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold bg-cta text-white">
                 Login
             </button>
-            <button id="register-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold text-gray-600 hover:bg-gray-100">
+            <button id="register-tab" class="flex-1 py-2 px-4 rounded-lg font-semibold" style="color: #666666;">
                 Register
             </button>
         </div>
 
         <!-- Login Form -->
         <form id="login-form" class="p-6 bg-white rounded-b-xl shadow-2xl space-y-4">
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
-            <p class="text-sm text-gray-500 mb-4">Login to track your orders</p>
+            <h3 class="text-2xl font-bold mb-2" style="color: #222222;">Welcome Back!</h3>
+            <p class="text-sm mb-4" style="color: #666666;">Login to track your orders</p>
             
             <!-- Test Credentials Info -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm mb-4">
-                <p class="font-semibold text-blue-800 mb-1">🧪 Test Credentials:</p>
-                <p class="text-blue-700"><strong>Email:</strong> john.doe@example.com</p>
-                <p class="text-blue-700"><strong>Password:</strong> password123</p>
+            <div class="rounded-lg p-3 text-sm mb-4" style="background-color: rgba(0,200,83,0.1); border: 1px solid #00C853;">
+                <p class="font-semibold mb-1" style="color: #00C853;">🧪 Test Credentials:</p>
+                <p style="color: #00C853;"><strong>Email:</strong> john.doe@example.com</p>
+                <p style="color: #00C853;"><strong>Password:</strong> password123</p>
             </div>
 
             <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -37,30 +49,30 @@
             </div>
             
             <div>
-                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <label for="login-email" class="block text-sm font-medium mb-1" style="color: #222222;">Email Address</label>
                 <input type="email" id="login-email" required
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full p-3 border rounded-lg focus-ring-accent" style="border-color: #E5E5E5;">
             </div>
             
             <div>
-                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label for="login-password" class="block text-sm font-medium mb-1" style="color: #222222;">Password</label>
                 <input type="password" id="login-password" required
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full p-3 border rounded-lg focus-ring-accent" style="border-color: #E5E5E5;">
             </div>
             
-            <button type="submit" id="login-submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+            <button type="submit" id="login-submit-btn" class="w-full bg-cta text-white py-3 rounded-lg font-semibold hover-bg-cta transition">
                 Login
             </button>
 
-            <p class="text-center text-sm text-gray-600 mt-4">
-                Don't have an account? <button type="button" onclick="showRegister()" class="text-indigo-600 font-semibold hover:underline">Register here</button>
+            <p class="text-center text-sm mt-4" style="color: #666666;">
+                Don't have an account? <button type="button" onclick="showRegister()" class="text-accent font-semibold hover:underline">Register here</button>
             </p>
         </form>
 
         <!-- Registration Form (Hidden by default) -->
         <form id="registration-form" class="p-6 bg-white rounded-b-xl shadow-2xl space-y-4 hidden">
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Create Account</h3>
-            <p class="text-sm text-gray-500 mb-4">Join SneakerHub today!</p>
+            <h3 class="text-2xl font-bold mb-2" style="color: #222222;">Create Account</h3>
+            <p class="text-sm mb-4" style="color: #666666;">Join SneakerHub today!</p>
 
             <div id="register-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                 <p class="text-sm"></p>
@@ -71,24 +83,24 @@
             </div>
             
             <div>
-                <label for="reg-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <label for="reg-email" class="block text-sm font-medium mb-1" style="color: #222222;">Email Address</label>
                 <input type="email" id="reg-email" required
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    class="w-full p-3 border rounded-lg focus-ring-accent" style="border-color: #E5E5E5;">
             </div>
             
             <div>
-                <label for="reg-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label for="reg-password" class="block text-sm font-medium mb-1" style="color: #222222;">Password</label>
                 <input type="password" id="reg-password" required minlength="6"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <p class="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+                    class="w-full p-3 border rounded-lg focus-ring-accent" style="border-color: #E5E5E5;">
+                <p class="text-xs mt-1" style="color: #666666;">Minimum 6 characters required</p>
             </div>
             
-            <button type="submit" id="register-submit-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+            <button type="submit" id="register-submit-btn" class="w-full bg-cta text-white py-3 rounded-lg font-semibold hover-bg-cta transition">
                 Create Account
             </button>
 
-            <p class="text-center text-sm text-gray-600 mt-4">
-                Already have an account? <button type="button" onclick="showLogin()" class="text-indigo-600 font-semibold hover:underline">Login here</button>
+            <p class="text-center text-sm mt-4" style="color: #666666;">
+                Already have an account? <button type="button" onclick="showLogin()" class="text-accent font-semibold hover:underline">Login here</button>
             </p>
         </form>
     </div>
@@ -112,20 +124,24 @@
         function showLogin() {
             loginForm.classList.remove('hidden');
             registrationForm.classList.add('hidden');
-            loginTab.classList.add('bg-indigo-600', 'text-white');
-            loginTab.classList.remove('text-gray-600', 'hover:bg-gray-100');
-            registerTab.classList.remove('bg-indigo-600', 'text-white');
-            registerTab.classList.add('text-gray-600', 'hover:bg-gray-100');
+            loginTab.classList.add('bg-cta', 'text-white');
+            loginTab.classList.remove('text-subtext');
+            loginTab.style.color = '';
+            registerTab.classList.remove('bg-cta', 'text-white');
+            registerTab.classList.add('text-subtext');
+            registerTab.style.color = '#666666';
         }
 
         // Show Registration Form
         function showRegister() {
             registrationForm.classList.remove('hidden');
             loginForm.classList.add('hidden');
-            registerTab.classList.add('bg-indigo-600', 'text-white');
-            registerTab.classList.remove('text-gray-600', 'hover:bg-gray-100');
-            loginTab.classList.remove('bg-indigo-600', 'text-white');
-            loginTab.classList.add('text-gray-600', 'hover:bg-gray-100');
+            registerTab.classList.add('bg-cta', 'text-white');
+            registerTab.classList.remove('text-subtext');
+            registerTab.style.color = '';
+            loginTab.classList.remove('bg-cta', 'text-white');
+            loginTab.classList.add('text-subtext');
+            loginTab.style.color = '#666666';
         }
 
         // Tab Click Handlers

@@ -122,9 +122,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
+        
 
         <!-- Browse More Section -->
         <div class="bg-white rounded-lg shadow p-6 mb-8">
@@ -159,6 +159,45 @@
             </div>
         </div>
 
+    </div>
+
+        <!-- 🟢 Product Modal -->
+    <div
+        id="product-modal"
+        class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50"
+    >
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 relative overflow-hidden">
+            <!-- Close button -->
+            <button
+                class="absolute top-3 right-3 text-2xl text-subtext hover:text-primary leading-none"
+                onclick="closeProductModal()"
+            >
+                &times;
+            </button>
+
+            <img
+                id="modal-image"
+                class="w-full h-56 object-cover"
+                src=""
+                alt=""
+            />
+
+            <div class="p-6">
+                <h2 id="modal-title" class="text-2xl font-bold mb-2 text-primary"></h2>
+                <p id="modal-price" class="text-xl font-semibold text-accent mb-2"></p>
+                <p id="modal-description" class="text-sm text-subtext mb-4"></p>
+                <span
+                    id="modal-status"
+                    class="inline-block text-xs px-3 py-1 rounded bg-accent text-white mb-4"
+                ></span>
+
+                <button
+                    class="w-full bg-cta hover-bg-cta text-white font-semibold py-3 rounded-lg mt-2"
+                >
+                    Add to Cart
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -228,23 +267,75 @@
             });
         }
 
-        // Product modal function (placeholder for future implementation)
-        function openProductModal(productName) {
-            // Check if user is logged in
-            const authToken = localStorage.getItem('authToken');
-            if (!authToken) {
-                if (confirm('Please login to view product details. Would you like to go to the login page?')) {
-                    window.location.href = 'src/user-registration.HTML';
-                }
-                return;
-            }
-            // For now, just show an alert (can be enhanced later with a product detail modal)
-            alert(`Product: ${productName}\n\nProduct details page coming soon!`);
-        }
+        
 
-        // Update navigation on page load
-        document.addEventListener('DOMContentLoaded', updateNavigation);
-    </script>
+        // Product data for the modal
+        const products = {
+            'Nike Dunks: Panda': {
+                name: 'Nike Dunks: Panda',
+                price: '$119.00',
+                description: 'Fashionable black and white dunks.',
+                image: 'shoes/nike-pandas.jpg',
+            status: 'Available'
+        },
+
+            'Jordan 4s: Red Thunders': {
+                name: 'Jordan 4s: Red Thunders',
+                price: '$450.99',
+                description: 'Comfortable everyday sneakers.',
+                image: 'shoes/red-thunders.jpg',
+            status: 'New Arrival'
+        },
+            'Jordan 1s: Court Purple': {
+                name: 'Jordan 1s: Court Purple',
+                price: '$79.99',
+                description: 'Stylish high-top shoes with bold purple accents.',
+                image: 'shoes/jordan-1s-purple.jpg',
+                status: 'Available'
+        },
+            'Black Air Force 1s': {
+                name: 'Black Air Force 1s',
+                price: '$99.99',
+                description: 'Classic all-black Air Force 1s for everyday wear.',
+                image: 'shoes/air-force-1s.jpg',
+                status: 'Available'
+      }
+  };
+
+  function openProductModal(productName) {
+      const authToken = localStorage.getItem('authToken');
+
+      // if not logged in, redirect to login (like before)
+      if (!authToken) {
+          if (confirm('Please login to view product details. Would you like to go to the login page?')) {
+              window.location.href = 'src/user-registration.HTML';
+          }
+          return;
+      }
+
+      const product = products[productName];
+      if (!product) {
+          alert('Product details not found.');
+          return;
+      }
+
+      // Fill modal fields
+      document.getElementById('modal-title').textContent = product.name;
+      document.getElementById('modal-price').textContent = product.price;
+      document.getElementById('modal-description').textContent = product.description;
+      document.getElementById('modal-image').src = product.image;
+      document.getElementById('modal-image').alt = product.name;
+      document.getElementById('modal-status').textContent = product.status;
+
+      // Show modal
+      document.getElementById('product-modal').classList.remove('hidden');
+  }
+
+  function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+  }
+</script>
+
 
 </body>
 </html>

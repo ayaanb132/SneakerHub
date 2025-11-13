@@ -64,7 +64,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 
                 <!-- Product Card 1 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductModal('Nike Dunks: Panda')">
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductPage('nike-dunks-panda')">
                     <img src="shoes/nike-pandas.jpg" 
                          alt="Nike Dunks: Panda" 
                          class="w-full h-48 object-cover">
@@ -79,7 +79,7 @@
                 </div>
 
                 <!-- Product Card 2 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductModal('Jordan 4s: Red Thunders')">
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductPage('jordan-4s-red-thunders')">
                     <img src="shoes\red-thunders.jpg" 
                          alt="Jordan 4s: Red Thunders" 
                          class="w-full h-48 object-cover">
@@ -94,7 +94,7 @@
                 </div>
 
                 <!-- Product Card 3 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductModal('Jordan 1s: Court Purple')">
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductPage('jordan-1s-court-purple')">
                     <img src="shoes\jordan-1s-purple.jpg" 
                          alt="Jordan 1s: Court Purple" 
                          class="w-full h-48 object-cover">
@@ -109,7 +109,7 @@
                 </div>
 
                 <!-- Product Card 4 -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductModal('Black Air Force 1s')">
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden" onclick="openProductPage('black-air-force-1s')">
                     <img src="shoes\air-force-1s.jpg" 
                          alt="Black Air Force 1s" 
                          class="w-full h-48 object-cover">
@@ -159,45 +159,6 @@
             </div>
         </div>
 
-    </div>
-
-        <!-- 🟢 Product Modal -->
-    <div
-        id="product-modal"
-        class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50"
-    >
-        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 relative overflow-hidden">
-            <!-- Close button -->
-            <button
-                class="absolute top-3 right-3 text-2xl text-subtext hover:text-primary leading-none"
-                onclick="closeProductModal()"
-            >
-                &times;
-            </button>
-
-            <img
-                id="modal-image"
-                class="w-full h-56 object-cover"
-                src=""
-                alt=""
-            />
-
-            <div class="p-6">
-                <h2 id="modal-title" class="text-2xl font-bold mb-2 text-primary"></h2>
-                <p id="modal-price" class="text-xl font-semibold text-accent mb-2"></p>
-                <p id="modal-description" class="text-sm text-subtext mb-4"></p>
-                <span
-                    id="modal-status"
-                    class="inline-block text-xs px-3 py-1 rounded bg-accent text-white mb-4"
-                ></span>
-
-                <button
-                    class="w-full bg-cta hover-bg-cta text-white font-semibold py-3 rounded-lg mt-2"
-                >
-                    Add to Cart
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Footer -->
@@ -302,38 +263,22 @@
       }
   };
 
-  function openProductModal(productName) {
-      const authToken = localStorage.getItem('authToken');
+  function openProductPage(productId) {
+        const authToken = localStorage.getItem('authToken');
 
-      // if not logged in, redirect to login (like before)
-      if (!authToken) {
-          if (confirm('Please login to view product details. Would you like to go to the login page?')) {
-              window.location.href = 'src/user-registration.HTML';
-          }
-          return;
-      }
+        // If not logged in, send to login page
+        if (!authToken) {
+            if (confirm('Please login to view product details. Would you like to go to the login page?')) {
+                window.location.href = 'src/user-registration.HTML';
+            }
+            return;
+        }
 
-      const product = products[productName];
-      if (!product) {
-          alert('Product details not found.');
-          return;
-      }
+        // Go to product details page with query parameter
+        window.location.href = 'product.html?id=' + encodeURIComponent(productId);
+    }
 
-      // Fill modal fields
-      document.getElementById('modal-title').textContent = product.name;
-      document.getElementById('modal-price').textContent = product.price;
-      document.getElementById('modal-description').textContent = product.description;
-      document.getElementById('modal-image').src = product.image;
-      document.getElementById('modal-image').alt = product.name;
-      document.getElementById('modal-status').textContent = product.status;
-
-      // Show modal
-      document.getElementById('product-modal').classList.remove('hidden');
-  }
-
-  function closeProductModal() {
-      document.getElementById('product-modal').classList.add('hidden');
-  }
+    document.addEventListener('DOMContentLoaded', updateNavigation);
 </script>
 
 

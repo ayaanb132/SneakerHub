@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SneakerHub – Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-primary { background-color: #111111; }
+        .bg-accent { background-color: #00C853; }
+        .bg-cta { background-color: #FF3D00; }
+        .hover-bg-cta:hover { background-color: #e63600; }
+        .text-primary { color: #222222; }
+        .text-subtext { color: #666666; }
+        .text-accent { color: #00C853; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Simple header -->
+    <nav class="bg-primary text-white p-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <a href="index.HTML" class="font-bold text-xl">SneakerHub</a>
+            <a href="index.HTML" class="text-sm underline">Back to Home</a>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-6">
+        <div id="product-container" class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+            
+            <!-- Image -->
+            <div class="md:w-1/2 bg-gray-100">
+                <img id="product-image" src="" alt="" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Details -->
+            <div class="md:w-1/2 p-8 flex flex-col gap-4">
+                <div>
+                    <h1 id="product-name" class="text-3xl font-bold text-primary mb-2"></h1>
+                    <p id="product-price" class="text-2xl font-semibold text-accent mb-2"></p>
+                    <p id="product-description" class="text-subtext"></p>
+                </div>
+
+                <!-- Status badge -->
+                <span id="product-status" class="inline-block text-xs px-3 py-1 rounded bg-accent text-white w-fit"></span>
+
+                <!-- Size selection -->
+                <div class="mt-4">
+                    <h2 class="font-semibold mb-2 text-primary">Select Size</h2>
+                    <div id="size-buttons" class="flex flex-wrap gap-2"></div>
+                    <p id="size-error" class="text-sm text-red-600 mt-1 hidden">Please select a size.</p>
+                </div>
+
+                <!-- Add to Cart -->
+                <button
+                    id="add-to-cart-btn"
+                    class="mt-6 w-full bg-cta text-white font-semibold py-3 rounded-lg hover-bg-cta text-lg"
+                >
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ---------- Utilities ----------
+
+        // Read ?id=... from URL
+        function getProductIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Simple product data (same IDs as index.html)
+        const products = {
+            'nike-dunks-panda': {
+                name: 'Nike Dunks: Panda',
+                price: '$119.00',
+                description: 'Fashionable black and white dunks.',
+                image: 'shoes/nike-pandas.jpg',
+                status: 'Available',
+                sizes: ['7', '8', '9', '10', '11', '12']
+            },
+            'jordan-4s-red-thunders': {
+                name: 'Jordan 4s: Red Thunders',
+                price: '$450.99',
+                description: 'Comfortable everyday sneakers.',
+                image: 'shoes/red-thunders.jpg',
+                status: 'New Arrival',
+                sizes: ['7', '8', '9', '10', '11']
+            },
+            'jordan-1s-court-purple': {
+                name: 'Jordan 1s: Court Purple',
+                price: '$79.99',
+                description: 'Stylish high-top shoes with bold purple accents.',
+                image: 'shoes/jordan-1s-purple.jpg',
+                status: 'Available',
+                sizes: ['6', '7', '8', '9', '10', '11']
+            },
+            'black-air-force-1s': {
+                name: 'Black Air Force 1s',
+                price: '$99.99',
+                description: 'Classic all-black Air Force 1s for everyday wear.',
+                image: 'shoes/air-force-1s.jpg',
+                status: 'Available',
+                sizes: ['7', '8', '9', '10', '11', '12']
+            }
+        };
+
+        let selectedSize = null;
+        let currentProductId = null;
+
+        function renderProduct(productId) {
+            const product = products[productId];
+            if (!product) {
+                document.querySelector('main').innerHTML =
+                    '<p class="text-center text-xl mt-10">Product not found.</p>';
+                return;
+            }
+
+            currentProductId = productId;
+
+            document.getElementById('product-name').textContent = product.name;
+            document.getElementById('product-price').textContent = product.price;
+            document.getElementById('product-description').textContent = product.description;
+            document.getElementById('product-image').src = product.image;
+            document.getElementById('product-image').alt = product.name;
+            document.getElementById('product-status').textContent = product.status;
+
+            // Render size buttons
+            const sizeContainer = document.getElementById('size-buttons');
+            sizeContainer.innerHTML = '';
+            selectedSize = null;
+            document.getElementById('size-error').classList.add('hidden');
+
+            product.sizes.forEach(size => {
+                const btn = document.createElement('button');
+                btn.textContent = size;
+                btn.className =
+                    'px-4 py-2 rounded border border-gray-300 text-sm hover:bg-gray-100 focus:outline-none';
+                btn.addEventListener('click', () => {
+                    selectedSize = size;
+                    document.getElementById('size-error').classList.add('hidden');
+
+                    // Visually highlight selected button
+                    Array.from(sizeContainer.children).forEach(child => {
+                        child.classList.remove('bg-black', 'text-white');
+                    });
+                    btn.classList.add('bg-black', 'text-white');
+                });
+                sizeContainer.appendChild(btn);
+            });
+        }
+
+        function addToCart() {
+            if (!selectedSize) {
+                document.getElementById('size-error').classList.remove('hidden');
+                return;
+            }
+
+            const product = products[currentProductId];
+            const cartItem = {
+                id: currentProductId,
+                name: product.name,
+                price: product.price,
+                size: selectedSize,
+                quantity: 1
+            };
+
+            const existing = JSON.parse(localStorage.getItem('cart') || '[]');
+            existing.push(cartItem);
+            localStorage.setItem('cart', JSON.stringify(existing));
+
+            alert(`Added ${product.name} (Size ${selectedSize}) to your cart.`);
+        }
+
+        // ---------- On page load ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            // Make sure user is logged in (same idea as index.html)
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                if (confirm('Please login to view product details. Go to login page?')) {
+                    window.location.href = 'src/user-registration.HTML';
+                }
+                return;
+            }
+
+            const productId = getProductIdFromUrl();
+            renderProduct(productId);
+
+            document.getElementById('add-to-cart-btn')
+                .addEventListener('click', addToCart);
+        });
+    </script>
+</body>
+</html>
+
+

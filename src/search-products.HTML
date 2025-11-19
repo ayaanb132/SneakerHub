@@ -11,24 +11,101 @@
         .bg-secondary { background-color: #F5F5F5; }
         .text-primary { color: #222222; }
         .text-subtext { color: #666666; }
+        /* Custom style for the dropdown scrollbar if needed */
+        .dropdown-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .dropdown-scroll::-webkit-scrollbar-thumb {
+            background-color: #cccccc;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center h-screen" style="background-color: #F5F5F5;">
 
-    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+    <div class="bg-white p-6 rounded shadow-md w-full max-w-md relative">
         <h1 class="text-2xl font-bold mb-4 text-center" style="color: #222222;">Search for Products</h1>
 
-        <div class="flex items-center border rounded px-3 py-2 mb-4" style="border-color: #E5E5E5;">
-            <!-- Magnifying Glass Icon (SVG) -->
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #666666;">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input type="text" placeholder="Enter product name" class="w-full outline-none" style="color: #222222;">
+        <div class="relative">
+            <div class="flex items-center border rounded px-3 py-2" style="border-color: #E5E5E5;">
+                <!-- Magnifying Glass Icon (SVG) -->
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #666666;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Enter product name" class="w-full outline-none" style="color: #222222;" autocomplete="off">
+            </div>
+
+            <!-- Dropdown List Container -->
+            <ul id="resultsList" class="hidden absolute z-10 w-full bg-white border border-t-0 rounded-b shadow-lg max-h-60 overflow-y-auto" style="border-color: #E5E5E5;">
+                <!-- List items will be injected here by JavaScript -->
+            </ul>
         </div>
 
-        <p class="text-center" style="color: #666666;">Searching for products (search logic pending)</p>
+        <p class="text-center mt-4 text-sm" style="color: #666666;" id="statusText">Start typing to search...</p>
     </div>
+
+    <script>
+        // 1. The list of products
+        const products = [
+            "Air Force", 
+            "Jordan 1 Purple", 
+            "Jordan 1", 
+            "Nike Panda", 
+            "Red Thunders"
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsList = document.getElementById('resultsList');
+        const statusText = document.getElementById('statusText');
+
+        // 2. Listen for typing
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            resultsList.innerHTML = ''; // Clear previous results
+
+            if (query.length === 0) {
+                resultsList.classList.add('hidden');
+                statusText.textContent = "Start typing to search...";
+                return;
+            }
+
+            // 3. Filter the products based on the input
+            const filteredProducts = products.filter(product => 
+                product.toLowerCase().includes(query)
+            );
+
+            // 4. Display results
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach(product => {
+                    const li = document.createElement('li');
+                    li.textContent = product;
+                    li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100 text-primary transition-colors duration-150";
+                    
+                    // Allow clicking a result to fill the box
+                    li.onclick = function() {
+                        searchInput.value = product;
+                        resultsList.classList.add('hidden');
+                        statusText.textContent = `Selected: ${product}`;
+                    };
+                    
+                    resultsList.appendChild(li);
+                });
+                resultsList.classList.remove('hidden');
+                statusText.textContent = `Found ${filteredProducts.length} product(s)`;
+            } else {
+                resultsList.classList.add('hidden');
+                statusText.textContent = "No products found.";
+            }
+        });
+
+        // Optional: Hide dropdown if user clicks outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !resultsList.contains(e.target)) {
+                resultsList.classList.add('hidden');
+            }
+        });
+    </script>
 
 </body>
 </html>

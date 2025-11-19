@@ -23,7 +23,7 @@
             <div class="flex gap-4 text-sm">
                 <a href="index.HTML" class="hover:underline">Home</a>
                 <a href="src/search-products.HTML" class="hover:underline">Search</a>
-                <a href="cart.html" class="font-semibold underline">My Cart</a>
+                <a href="cart.HTML" class="font-semibold underline">My Cart</a>
             </div>
         </div>
     </nav>
@@ -165,9 +165,14 @@
                 infoDiv.className = 'flex-1';
 
                 infoDiv.innerHTML = `
-                    <p class="font-semibold text-primary text-base">${item.name}</p>
-                    <p class="text-sm text-subtext">Size: <span class="font-medium">${item.size}</span></p>
-                    <p class="text-sm text-subtext mt-1">Price: <span class="font-medium">${item.price}</span></p>
+                    <div class="flex items-center gap-4">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md border">
+                        </div>
+                            <p class="font-semibold text-primary text-base">${item.name}</p>
+                            <p class="text-sm text-subtext">Size: <span class="font-medium">${item.size}</span></p>
+                            <p class="text-sm text-subtext mt-1">Price: <span class="font-medium">${item.price}</span></p>
+                        </div>
+                    </div>    
                 `;
 
                 // Middle: quantity controls

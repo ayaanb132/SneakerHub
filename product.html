@@ -12,11 +12,40 @@
         .text-primary { color: #222222; }
         .text-subtext { color: #666666; }
         .text-accent { color: #00C853; }
+
+        /* Size button styles */
+        .size-btn {
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            border: 1px solid #ddd;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            color: #222222;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .size-btn:hover {
+            border-color: #00C853;
+        }
+
+        .size-btn-selected {
+            background-color: #00C853;
+            color: #ffffff;
+            border-color: #00C853;
+        }
+
+        .size-btn-check {
+            font-size: 0.85rem;
+            margin-left: 2px;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <!-- Simple header -->
     <nav class="bg-primary text-white p-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <a href="index.HTML" class="font-bold text-xl">SneakerHub</a>
@@ -26,13 +55,18 @@
 
     <main class="max-w-5xl mx-auto p-6">
         <div id="product-container" class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-            
-            <!-- Image -->
-            <div class="md:w-1/2 bg-gray-100">
-                <img id="product-image" src="" alt="" class="w-full h-full object-cover">
+
+            <div class="md:w-1/2 bg-white flex items-center justify-center p-8">
+                <div class="overflow-hidden rounded-2xl">
+                    <img
+                        id="product-image"
+                        src=""
+                        alt=""
+                        class="max-w-full max-h-[550px] object-contain transform transition-transform duration-300 ease-out hover:scale-110"
+                    >
+                </div>
             </div>
 
-            <!-- Details -->
             <div class="md:w-1/2 p-8 flex flex-col gap-4">
                 <div>
                     <h1 id="product-name" class="text-3xl font-bold text-primary mb-2"></h1>
@@ -40,17 +74,14 @@
                     <p id="product-description" class="text-subtext"></p>
                 </div>
 
-                <!-- Status badge -->
                 <span id="product-status" class="inline-block text-xs px-3 py-1 rounded bg-accent text-white w-fit"></span>
 
-                <!-- Size selection -->
                 <div class="mt-4">
                     <h2 class="font-semibold mb-2 text-primary">Select Size</h2>
                     <div id="size-buttons" class="flex flex-wrap gap-2"></div>
                     <p id="size-error" class="text-sm text-red-600 mt-1 hidden">Please select a size.</p>
                 </div>
 
-                <!-- Add to Cart -->
                 <button
                     id="add-to-cart-btn"
                     class="mt-6 w-full bg-cta text-white font-semibold py-3 rounded-lg hover-bg-cta text-lg"
@@ -62,15 +93,11 @@
     </main>
 
     <script>
-        // ---------- Utilities ----------
-
-        // Read ?id=... from URL
         function getProductIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
 
-        // Simple product data (same IDs as index.html)
         const products = {
             'nike-dunks-panda': {
                 name: 'Nike Dunks: Panda',
@@ -78,7 +105,7 @@
                 description: 'Fashionable black and white dunks.',
                 image: 'shoes/nike-pandas.jpg',
                 status: 'Available',
-                sizes: ['7', '8', '9', '10', '11', '12']
+                sizes: ['4','5','6','7','8','9','10','11','12']
             },
             'jordan-4s-red-thunders': {
                 name: 'Jordan 4s: Red Thunders',
@@ -86,7 +113,7 @@
                 description: 'Comfortable everyday sneakers.',
                 image: 'shoes/red-thunders.jpg',
                 status: 'New Arrival',
-                sizes: ['7', '8', '9', '10', '11']
+                sizes: ['4','5','6','7','8','9','10','11','12']
             },
             'jordan-1s-court-purple': {
                 name: 'Jordan 1s: Court Purple',
@@ -94,7 +121,7 @@
                 description: 'Stylish high-top shoes with bold purple accents.',
                 image: 'shoes/jordan-1s-purple.jpg',
                 status: 'Available',
-                sizes: ['6', '7', '8', '9', '10', '11']
+                sizes: ['4','5','6','7','8','9','10','11','12']
             },
             'black-air-force-1s': {
                 name: 'Black Air Force 1s',
@@ -102,7 +129,7 @@
                 description: 'Classic all-black Air Force 1s for everyday wear.',
                 image: 'shoes/air-force-1s.jpg',
                 status: 'Available',
-                sizes: ['7', '8', '9', '10', '11', '12']
+                sizes: ['4','5','6','7','8','9','10','11','12']
             }
         };
 
@@ -111,11 +138,7 @@
 
         function renderProduct(productId) {
             const product = products[productId];
-            if (!product) {
-                document.querySelector('main').innerHTML =
-                    '<p class="text-center text-xl mt-10">Product not found.</p>';
-                return;
-            }
+            if (!product) return;
 
             currentProductId = productId;
 
@@ -126,7 +149,6 @@
             document.getElementById('product-image').alt = product.name;
             document.getElementById('product-status').textContent = product.status;
 
-            // Render size buttons
             const sizeContainer = document.getElementById('size-buttons');
             sizeContainer.innerHTML = '';
             selectedSize = null;
@@ -134,19 +156,29 @@
 
             product.sizes.forEach(size => {
                 const btn = document.createElement('button');
-                btn.textContent = size;
-                btn.className =
-                    'px-4 py-2 rounded border border-gray-300 text-sm hover:bg-gray-100 focus:outline-none';
+                btn.className = 'size-btn';
+                btn.dataset.size = size;
+
+                btn.innerHTML = `
+                    <span>${size}</span>
+                    <span class="size-btn-check"></span>
+                `;
+
                 btn.addEventListener('click', () => {
                     selectedSize = size;
                     document.getElementById('size-error').classList.add('hidden');
 
-                    // Visually highlight selected button
+                    // Remove selected style from all
                     Array.from(sizeContainer.children).forEach(child => {
-                        child.classList.remove('bg-black', 'text-white');
+                        child.classList.remove('size-btn-selected');
+                        child.querySelector('.size-btn-check').textContent = '';
                     });
-                    btn.classList.add('bg-black', 'text-white');
+
+                    // Add to selected button
+                    btn.classList.add('size-btn-selected');
+                    btn.querySelector('.size-btn-check').textContent = '✓';
                 });
+
                 sizeContainer.appendChild(btn);
             });
         }
@@ -173,9 +205,7 @@
             alert(`Added ${product.name} (Size ${selectedSize}) to your cart.`);
         }
 
-        // ---------- On page load ----------
         document.addEventListener('DOMContentLoaded', () => {
-            // Make sure user is logged in (same idea as index.html)
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 if (confirm('Please login to view product details. Go to login page?')) {
@@ -183,15 +213,9 @@
                 }
                 return;
             }
-
-            const productId = getProductIdFromUrl();
-            renderProduct(productId);
-
-            document.getElementById('add-to-cart-btn')
-                .addEventListener('click', addToCart);
+            renderProduct(getProductIdFromUrl());
+            document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
         });
     </script>
 </body>
 </html>
-
-

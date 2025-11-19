@@ -4,21 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search for Products</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .bg-primary { background-color: #111111; }
-        .bg-secondary { background-color: #F5F5F5; }
         .text-primary { color: #222222; }
         .text-subtext { color: #666666; }
-        /* Custom style for the dropdown scrollbar if needed */
-        .dropdown-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .dropdown-scroll::-webkit-scrollbar-thumb {
-            background-color: #cccccc;
-            border-radius: 3px;
-        }
     </style>
 </head>
 <body class="flex items-center justify-center h-screen" style="background-color: #F5F5F5;">
@@ -28,7 +18,6 @@
 
         <div class="relative">
             <div class="flex items-center border rounded px-3 py-2" style="border-color: #E5E5E5;">
-                <!-- Magnifying Glass Icon (SVG) -->
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #666666;">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -36,33 +25,40 @@
                 <input type="text" id="searchInput" placeholder="Enter product name" class="w-full outline-none" style="color: #222222;" autocomplete="off">
             </div>
 
-            <!-- Dropdown List Container -->
             <ul id="resultsList" class="hidden absolute z-10 w-full bg-white border border-t-0 rounded-b shadow-lg max-h-60 overflow-y-auto" style="border-color: #E5E5E5;">
-                <!-- List items will be injected here by JavaScript -->
+                <!-- List items injected by JS -->
             </ul>
         </div>
 
         <p class="text-center mt-4 text-sm" style="color: #666666;" id="statusText">Start typing to search...</p>
+        <!-- Helper message for testing -->
+        <p class="text-center mt-2 text-xs text-red-400">Note: Redirects only work when files are saved locally.</p>
     </div>
 
     <script>
-        // 1. The list of products
+        // Configuration: Ensure the 'url' filename matches exactly what you saved the other file as.
         const products = [
-            "Air Force", 
-            "Jordan 1 Purple", 
-            "Jordan 1", 
-            "Nike Panda", 
-            "Red Thunders"
+            { name: "Air Force", url: "product-details.html?id=black-air-force-1s" }, 
+            { name: "Jordan 1 Purple", url: "product-details.html?id=jordan-1s-court-purple" }, 
+            { name: "Jordan 1", url: "product-details.html?id=jordan-1s-court-purple" }, 
+            { name: "Nike Panda", url: "product-details.html?id=nike-dunks-panda" }, 
+            { name: "Red Thunders", url: "product-details.html?id=jordan-4s-red-thunders" }
         ];
 
         const searchInput = document.getElementById('searchInput');
         const resultsList = document.getElementById('resultsList');
         const statusText = document.getElementById('statusText');
 
-        // 2. Listen for typing
+        function getFilteredProducts(query) {
+            if (!query) return [];
+            return products.filter(product => 
+                product.name.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
         searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            resultsList.innerHTML = ''; // Clear previous results
+            const query = this.value;
+            resultsList.innerHTML = ''; 
 
             if (query.length === 0) {
                 resultsList.classList.add('hidden');
@@ -70,24 +66,20 @@
                 return;
             }
 
-            // 3. Filter the products based on the input
-            const filteredProducts = products.filter(product => 
-                product.toLowerCase().includes(query)
-            );
+            const filteredProducts = getFilteredProducts(query);
 
-            // 4. Display results
             if (filteredProducts.length > 0) {
                 filteredProducts.forEach(product => {
                     const li = document.createElement('li');
-                    li.textContent = product;
-                    li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100 text-primary transition-colors duration-150";
+                    li.textContent = product.name;
+                    li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100 text-primary transition-colors duration-150 block border-b border-gray-100 last:border-0";
                     
-                    // Allow clicking a result to fill the box
-                    li.onclick = function() {
-                        searchInput.value = product;
-                        resultsList.classList.add('hidden');
-                        statusText.textContent = `Selected: ${product}`;
-                    };
+                    // Enhanced Click Handler
+                    li.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevents conflict with document click listener
+                        console.log("Redirecting to:", product.url); // Check your browser console if it fails
+                        window.location.href = product.url; 
+                    });
                     
                     resultsList.appendChild(li);
                 });
@@ -99,13 +91,24 @@
             }
         });
 
-        // Optional: Hide dropdown if user clicks outside
+        // Enter Key Handler
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                const filteredProducts = getFilteredProducts(query);
+                if (filteredProducts.length > 0) {
+                    window.location.href = filteredProducts[0].url;
+                }
+            }
+        });
+
+        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
+            // If the click was NOT on the search input AND NOT on the results list
             if (!searchInput.contains(e.target) && !resultsList.contains(e.target)) {
                 resultsList.classList.add('hidden');
             }
         });
     </script>
-
 </body>
 </html>

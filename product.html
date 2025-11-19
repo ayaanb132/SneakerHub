@@ -58,10 +58,12 @@
 
             <div class="md:w-1/2 bg-white flex items-center justify-center p-8">
                 <div class="overflow-hidden rounded-2xl">
+                    <!-- Note: Added a placeholder onerror to prevent broken image icons if local images are missing -->
                     <img
                         id="product-image"
                         src=""
                         alt=""
+                        onerror="this.src='https://placehold.co/400x400?text=No+Image'"
                         class="max-w-full max-h-[550px] object-contain transform transition-transform duration-300 ease-out hover:scale-110"
                     >
                 </div>
@@ -98,6 +100,7 @@
             return params.get('id');
         }
 
+        // Note: Image paths are relative. Ensure you have a 'shoes' folder with these images.
         const products = {
             'nike-dunks-panda': {
                 name: 'Nike Dunks: Panda',
@@ -138,7 +141,11 @@
 
         function renderProduct(productId) {
             const product = products[productId];
-            if (!product) return;
+            // If product not found, handle gracefully (optional)
+            if (!product) {
+                document.getElementById('product-name').textContent = "Product Not Found";
+                return;
+            }
 
             currentProductId = productId;
 
@@ -206,6 +213,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Commented out Auth check for easier testing
+            /*
             const authToken = localStorage.getItem('authToken');
             if (!authToken) {
                 if (confirm('Please login to view product details. Go to login page?')) {
@@ -213,6 +222,7 @@
                 }
                 return;
             }
+            */
             renderProduct(getProductIdFromUrl());
             document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
         });

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SneakerHub – My Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-primary { background-color: #111111; }
+        .bg-accent { background-color: #00C853; }
+        .bg-cta { background-color: #FF3D00; }
+        .hover-bg-cta:hover { background-color: #e63600; }
+        .text-primary { color: #222222; }
+        .text-subtext { color: #666666; }
+        .text-accent { color: #00C853; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Header -->
+    <nav class="bg-primary text-white p-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.HTML" class="font-bold text-xl">SneakerHub</a>
+            <div class="flex gap-4 text-sm">
+                <a href="index.HTML" class="hover:underline">Home</a>
+                <a href="src/search-products.HTML" class="hover:underline">Search</a>
+                <a href="cart.html" class="font-semibold underline">My Cart</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="max-w-6xl mx-auto p-6">
+        <h1 class="text-3xl font-bold text-primary mb-6">My Cart</h1>
+
+        <!-- Empty state -->
+        <div id="empty-cart" class="hidden bg-white rounded-xl shadow p-8 text-center">
+            <p class="text-lg text-subtext mb-4">Your cart is currently empty.</p>
+            <a href="src/search-products.HTML"
+               class="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90">
+                Browse Sneakers
+            </a>
+        </div>
+
+        <!-- Cart content -->
+        <div id="cart-container" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Items list -->
+            <section class="lg:col-span-2 bg-white rounded-xl shadow p-4 md:p-6">
+                <h2 class="text-xl font-semibold text-primary mb-4">Items</h2>
+                <div id="cart-items" class="space-y-4"></div>
+            </section>
+
+            <!-- Summary -->
+            <aside class="bg-white rounded-xl shadow p-4 md:p-6 h-fit">
+                <h2 class="text-xl font-semibold text-primary mb-4">Summary</h2>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-subtext">Subtotal</span>
+                    <span id="subtotal" class="font-medium text-primary">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-subtext">Estimated Tax (13%)</span>
+                    <span id="tax" class="font-medium text-primary">$0.00</span>
+                </div>
+                <div class="border-t my-3"></div>
+                <div class="flex justify-between text-lg font-semibold mb-4">
+                    <span>Total</span>
+                    <span id="total" class="text-accent">$0.00</span>
+                </div>
+
+                <button
+                    id="checkout-btn"
+                    class="w-full bg-cta text-white py-3 rounded-lg font-semibold hover-bg-cta"
+                >
+                    Proceed to Checkout
+                </button>
+
+                <button
+                    id="clear-cart-btn"
+                    class="w-full mt-3 border border-gray-300 text-primary py-2 rounded-lg text-sm hover:bg-gray-50"
+                >
+                    Clear Cart
+                </button>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        let cartItems = [];
+
+        function parsePrice(priceStr) {
+            // "$119.00" -> 119
+            const num = Number(priceStr.replace(/[^0-9.-]+/g, ''));
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatMoney(value) {
+            return '$' + value.toFixed(2);
+        }
+
+        function loadCartFromStorage() {
+            const raw = JSON.parse(localStorage.getItem('cart') || '[]');
+
+            // Merge same product + size into one line
+            const merged = [];
+            raw.forEach(item => {
+                const keyIndex = merged.findIndex(
+                    x => x.id === item.id && x.size === item.size
+                );
+                if (keyIndex >= 0) {
+                    merged[keyIndex].quantity += item.quantity || 1;
+                } else {
+                    merged.push({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        size: item.size,
+                        quantity: item.quantity || 1
+                    });
+                }
+            });
+
+            cartItems = merged;
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+        }
+
+        function updateTotals() {
+            let subtotal = 0;
+            cartItems.forEach(item => {
+                subtotal += parsePrice(item.price) * item.quantity;
+            });
+
+            const tax = subtotal * 0.13; // 13% HST
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = formatMoney(subtotal);
+            document.getElementById('tax').textContent = formatMoney(tax);
+            document.getElementById('total').textContent = formatMoney(total);
+        }
+
+        function renderCart() {
+            const emptyCartDiv = document.getElementById('empty-cart');
+            const cartContainer = document.getElementById('cart-container');
+            const itemsContainer = document.getElementById('cart-items');
+
+            if (!cartItems.length) {
+                emptyCartDiv.classList.remove('hidden');
+                cartContainer.classList.add('hidden');
+                return;
+            }
+
+            emptyCartDiv.classList.add('hidden');
+            cartContainer.classList.remove('hidden');
+
+            itemsContainer.innerHTML = '';
+
+            cartItems.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex flex-col md:flex-row items-center justify-between gap-4 border-b pb-4 last:border-b-0';
+
+                // Left: product info
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'flex-1';
+
+                infoDiv.innerHTML = `
+                    <p class="font-semibold text-primary text-base">${item.name}</p>
+                    <p class="text-sm text-subtext">Size: <span class="font-medium">${item.size}</span></p>
+                    <p class="text-sm text-subtext mt-1">Price: <span class="font-medium">${item.price}</span></p>
+                `;
+
+                // Middle: quantity controls
+                const qtyDiv = document.createElement('div');
+                qtyDiv.className = 'flex items-center gap-2';
+
+                const minusBtn = document.createElement('button');
+                minusBtn.textContent = '-';
+                minusBtn.className = 'w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center text-lg';
+                minusBtn.addEventListener('click', () => {
+                    if (item.quantity > 1) {
+                        item.quantity -= 1;
+                    } else {
+                        // remove item if quantity goes below 1
+                        cartItems.splice(index, 1);
+                    }
+                    saveCart();
+                    renderCart();
+                    updateTotals();
+                });
+
+                const qtySpan = document.createElement('span');
+                qtySpan.textContent = item.quantity;
+                qtySpan.className = 'w-8 text-center';
+
+                const plusBtn = document.createElement('button');
+                plusBtn.textContent = '+';
+                plusBtn.className = 'w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center text-lg';
+                plusBtn.addEventListener('click', () => {
+                    item.quantity += 1;
+                    saveCart();
+                    renderCart();
+                    updateTotals();
+                });
+
+                qtyDiv.appendChild(minusBtn);
+                qtyDiv.appendChild(qtySpan);
+                qtyDiv.appendChild(plusBtn);
+
+                // Right: line total + remove
+                const rightDiv = document.createElement('div');
+                rightDiv.className = 'flex flex-col items-end gap-2';
+
+                const lineTotal = parsePrice(item.price) * item.quantity;
+
+                const lineTotalSpan = document.createElement('span');
+                lineTotalSpan.textContent = formatMoney(lineTotal);
+                lineTotalSpan.className = 'font-semibold text-primary';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.className = 'text-xs text-red-600 hover:underline';
+                removeBtn.addEventListener('click', () => {
+                    cartItems.splice(index, 1);
+                    saveCart();
+                    renderCart();
+                    updateTotals();
+                });
+
+                rightDiv.appendChild(lineTotalSpan);
+                rightDiv.appendChild(removeBtn);
+
+                row.appendChild(infoDiv);
+                row.appendChild(qtyDiv);
+                row.appendChild(rightDiv);
+
+                itemsContainer.appendChild(row);
+            });
+
+            updateTotals();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Require login like other pages
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                if (confirm('Please login to view your cart. Go to login page?')) {
+                    window.location.href = 'src/user-registration.HTML';
+                }
+                return;
+            }
+
+            loadCartFromStorage();
+            renderCart();
+
+            document.getElementById('add-to-cart-btn');
+
+            const clearCartBtn = document.getElementById('clear-cart-btn');
+            clearCartBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear your cart?')) {
+                    cartItems = [];
+                    saveCart();
+                    renderCart();
+                    updateTotals();
+                }
+            });
+
+            const checkoutBtn = document.getElementById('checkout-btn');
+            checkoutBtn.addEventListener('click', () => {
+                alert('Checkout functionality coming soon 🙂');
+            });
+        });
+    </script>
+</body>
+</html>
+
+

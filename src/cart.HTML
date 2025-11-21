@@ -22,7 +22,7 @@
             <a href="index.HTML" class="font-bold text-xl">SneakerHub</a>
             <div class="flex gap-4 text-sm">
                 <a href="index.HTML" class="hover:underline">Home</a>
-                <a href="src/search-products.HTML" class="hover:underline">Search</a>
+                <a href="search-products.HTML" class="hover:underline">Search</a>
                 <a href="cart.HTML" class="font-semibold underline">My Cart</a>
             </div>
         </div>
@@ -35,7 +35,7 @@
         <!-- Empty state -->
         <div id="empty-cart" class="hidden bg-white rounded-xl shadow p-8 text-center">
             <p class="text-lg text-subtext mb-4">Your cart is currently empty.</p>
-            <a href="src/search-products.HTML"
+            <a href="search-products.HTML"
                class="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90">
                 Browse Sneakers
             </a>
@@ -166,8 +166,11 @@
 
                 infoDiv.innerHTML = `
                     <div class="flex items-center gap-4">
-                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md border">
-                        </div>
+                        <img 
+                            src="${item.image}" 
+                            alt="${item.name}" 
+                            class="w-20 h-20 object-cover rounded-md border">
+                        <div>
                             <p class="font-semibold text-primary text-base">${item.name}</p>
                             <p class="text-sm text-subtext">Size: <span class="font-medium">${item.size}</span></p>
                             <p class="text-sm text-subtext mt-1">Price: <span class="font-medium">${item.price}</span></p>
@@ -272,8 +275,9 @@
 
             const checkoutBtn = document.getElementById('checkout-btn');
             checkoutBtn.addEventListener('click', () => {
-                alert('Checkout functionality coming soon 🙂');
+                window.location.href = 'checkout-page.html';
             });
+
         });
     </script>
 </body>
